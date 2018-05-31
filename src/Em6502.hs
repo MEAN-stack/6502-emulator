@@ -123,28 +123,49 @@ data Flags = Flags { c :: Bool
 data Regs = Regs   { a :: Char
                    , x :: Char
                    , y :: Char
-                   , pc :: Char
+                   , pc :: Int
                    , sp :: Char
                    , sr :: Flags} deriving (Show)
 
 --
--- status register functions
+-- status register getters and setters
 --
-setCarry       r = r { c = True }
-clearCarry     r = r { c = False }
-setZero        r = r { z = True }
-clearZero      r = r { z = False }
-setInterrupt   r = r { i = True }
-clearInterrupt r = r { i = False }
-setDecimal     r = r { d = True }
-clearDecimal   r = r { d = False }
-setBreak       r = r { b = True }
-clearBreak     r = r { b = False }
-setOverflow    r = r { o = True }
-clearOverflow  r = r { o = False }
-setNegative    r = r { n = True }
-clearNegative  r = r { n = False }
+setC   f = f { c = True }
+clearC f = f { c = False }
+setZ   f = f { z = True }
+clearZ f = f { z = False }
+setI   f = f { i = True }
+clearI f = f { i = False }
+setD   f = f { d = True }
+clearD f = f { d = False }
+setB   f = f { b = True }
+clearB f = f { b = False }
+setO   f = f { o = True }
+clearO f = f { o = False }
+setN   f = f { n = True }
+clearN f = f { n = False }
 
+setA r x = r { a = x }
+setX r x = r { x = x }
+setY r x = r { y = x }
+setPc r x = r { pc = x }
+setSp r x = r { sp = x }
+setSr r x = r { sr = x }
+
+setCarry       r = setSr r (setC   (sr r)) 
+clearCarry     r = setSr r (clearC (sr r))
+setZero        r = setSr r (setZ   (sr r))
+clearZero      r = setSr r (clearZ (sr r))
+setInterrupt   r = setSr r (setI   (sr r))
+clearInterrupt r = setSr r (clearI (sr r))
+setDecimal     r = setSr r (setD   (sr r))
+clearDecimal   r = setSr r (clearD (sr r))
+setBreak       r = setSr r (setB   (sr r))
+clearBreak     r = setSr r (clearB (sr r))
+setOverflow    r = setSr r (setO   (sr r))
+clearOverflow  r = setSr r (clearO (sr r))
+setNegative    r = setSr r (setN   (sr r))
+clearNegative  r = setSr r (clearN (sr r))
 
 valAtEffectiveAddress :: [Char] -> Char
 valAtEffectiveAddress _ = '\0'
@@ -153,6 +174,7 @@ valAtEffectiveAddress _ = '\0'
 -- ADC
 -- Add Memory to Accumulator with Carry
 -- A + M + C -> A, C            N Z C I D V
+--                              + + + - - +
 --
 -- addressing    assembler    opc  bytes  cyles
 -- --------------------------------------------
@@ -164,11 +186,21 @@ valAtEffectiveAddress _ = '\0'
 -- absolute,Y    ADC oper,Y    79    3     4*
 -- (indirect,X)  ADC (oper,X)  61    2     6
 -- (indirect),Y  ADC (oper),Y  71    2     5*
---                              + + + - - +
+--
+adc' :: Int -> Int -> Flags -> (Int, Flags)
+adc' a m f = if (c f) 
+             then ((a+m+1) `mod` 256, newf)
+             else ((a+m) `mod` 256, newf)
+             where
+                newf
+
 adc :: Mode -> ([Char], Regs) -> ([Char], Regs)
 adc Imm (mem, regs) = (newMem, newRegs) where
-    newMem = drop 1 mem
+    newMem = tail mem
     m = head mem
+    acc = a regs
+    carry = c (sr regs)
+   
     newRegs = regs
 --    newRegs::a = regs.a + m
 
@@ -191,7 +223,7 @@ execInst (i:is, r) = case (lookup (fromEnum i) instructionSet) of
 execute :: ([Char], Regs) -> ([Char], Regs)
 execute = undefined
 
-regs = Regs {a='\0', x='\0', y='\0', pc='\0', sp='\0', sr=Flags {c=False, z=False, i=False, d=False, b=False, u=False, o=False, n=False}}
+regs = Regs {a='\0', x='\0', y='\0', pc=0, sp='\0', sr=Flags {c=False, z=False, i=False, d=False, b=False, u=False, o=False, n=False}}
 mem = take 65536 $ repeat 0
 
 --main = do

@@ -1,0 +1,68 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 575c28b7990f93784f29442e4813ae0fe91c866666f22893ce10a5fe5e6e7240
+
+name:           em6502
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/em6502#readme>
+homepage:       https://github.com/githubuser/em6502#readme
+bug-reports:    https://github.com/githubuser/em6502/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2018 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/em6502
+
+library
+  hs-source-dirs:
+      src
+  build-depends:
+      QuickCheck
+    , base >=4.7 && <5
+    , hspec
+  exposed-modules:
+      Em6502
+  other-modules:
+      Paths_em6502
+  default-language: Haskell2010
+
+executable em6502-exe
+  main-is: Main.hs
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      QuickCheck
+    , base >=4.7 && <5
+    , em6502
+    , hspec
+  other-modules:
+      Paths_em6502
+  default-language: Haskell2010
+
+test-suite em6502-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      QuickCheck
+    , base >=4.7 && <5
+    , em6502
+    , hspec
+  other-modules:
+      Paths_em6502
+  default-language: Haskell2010

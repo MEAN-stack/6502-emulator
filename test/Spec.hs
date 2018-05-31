@@ -1,0 +1,7 @@
+import Em6502
+import Test.Hspec
+import Test.QuickCheck
+import Control.Exception (evaluate)
+
+main :: IO ()
+main = putStrLn "Test suite not yet implemented"
